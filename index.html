@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<!--
+  Oxytracking — rastreio oximétrico noturno
+  © 2026 Rachel Ingrid Pereira da Rocha Jannuzzi. Todos os direitos reservados.
+  ORCID 0000-0002-0408-6302
+
+  NÃO É CONCEDIDA LICENÇA DE USO, CÓPIA OU REPRODUÇÃO.
+  Obra protegida pelas Leis nº 9.610/1998 e nº 9.609/1998.
+  Reprodução, distribuição, modificação, obra derivada, incorporação a outro
+  software e extração dos métodos de cálculo dependem de autorização prévia,
+  expressa e por escrito da autora. A visualização desta página não constitui
+  licença de uso. Termos completos no arquivo LICENSE.
+-->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Oxytracking</title>
+<style>
+:root{
+  --bg:#ffffff; --surface:#fafafa; --border:#e3e3e3; --border-2:#d0d0d0;
+  --tx:#1a1a1a; --tx-2:#5b6b73; --tx-3:#8a8a8a;
+  --az:#1f5f8b; --vm:#9e2a2b; --vd:#2f6b4f; --la:#c26a3d;
+  --az-bg:#eaf2f8; --vm-bg:#fbe9e9; --vd-bg:#e8f3ec; --la-bg:#fdf5ef;
+  --shadow:0 1px 3px rgba(0,0,0,.06);
+}
+@media (prefers-color-scheme:dark){
+ :root:not([data-theme="light"]){
+  --bg:#141719; --surface:#1c2023; --border:#2c3236; --border-2:#3a4247;
+  --tx:#e8eaeb; --tx-2:#9fb0b8; --tx-3:#6f7d84;
+  --az:#6fb0d9; --vm:#e08183; --vd:#74bb95; --la:#e0a077;
+  --az-bg:#1a2b36; --vm-bg:#2e1d1e; --vd-bg:#1a2e24; --la-bg:#2e2319;
+  --shadow:0 1px 3px rgba(0,0,0,.35);
+ }
+}
+:root[data-theme="dark"]{
+  --bg:#141719; --surface:#1c2023; --border:#2c3236; --border-2:#3a4247;
+  --tx:#e8eaeb; --tx-2:#9fb0b8; --tx-3:#6f7d84;
+  --az:#6fb0d9; --vm:#e08183; --vd:#74bb95; --la:#e0a077;
+  --az-bg:#1a2b36; --vm-bg:#2e1d1e; --vd-bg:#1a2e24; --la-bg:#2e2319;
+  --shadow:0 1px 3px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--tx);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px 80px}
+header.top{border-bottom:1px solid var(--border);margin-bottom:28px}
+header.top .wrap{padding-top:22px;padding-bottom:18px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+h1{font-size:21px;margin:0 0 4px;letter-spacing:-.2px}
+.sub{color:var(--tx-2);font-size:13.5px;margin:0}
+h2{font-size:17px;margin:34px 0 12px;letter-spacing:-.1px}
+h3{font-size:14.5px;margin:22px 0 8px}
+p{margin:0 0 12px}
+button{
+  font:inherit;font-weight:600;font-size:14px;cursor:pointer;
+  background:var(--az);color:#fff;border:none;border-radius:7px;padding:10px 18px;
+}
+button:hover{filter:brightness(1.08)}
+button:disabled{opacity:.4;cursor:not-allowed;filter:none}
+button.ghost{background:transparent;color:var(--tx-2);border:1px solid var(--border-2)}
+button.ghost:hover{background:var(--surface);filter:none}
+button.sm{padding:6px 12px;font-size:13px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px}
+.muted{color:var(--tx-2);font-size:13.5px}
+.tiny{color:var(--tx-3);font-size:12px}
+a{color:var(--az)}
+/* consentimento */
+#consent .card{max-width:820px;margin:0 auto 16px}
+.warnbox{border-left:3px solid var(--vm);background:var(--vm-bg);padding:14px 16px;border-radius:0 7px 7px 0;margin:16px 0}
+.warnbox strong{color:var(--vm)}
+ul.tight{margin:8px 0 12px;padding-left:20px}
+ul.tight li{margin-bottom:6px}
+label.chk{display:flex;gap:10px;align-items:flex-start;cursor:pointer;padding:12px;border:1px solid var(--border-2);border-radius:8px;margin:14px 0;background:var(--bg)}
+label.chk input{margin-top:3px;flex-shrink:0;width:16px;height:16px;accent-color:var(--az)}
+/* nav */
+nav.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:20px;flex-wrap:wrap}
+nav.tabs button{
+  background:transparent;color:var(--tx-2);border:none;border-bottom:2px solid transparent;
+  border-radius:0;padding:10px 16px;font-weight:600;font-size:14px;
+}
+nav.tabs button[aria-selected="true"]{color:var(--az);border-bottom-color:var(--az)}
+nav.tabs button:hover{background:var(--surface);filter:none}
+/* upload */
+.drop{
+  border:2px dashed var(--border-2);border-radius:10px;padding:36px 20px;text-align:center;
+  background:var(--surface);cursor:pointer;transition:border-color .15s
+}
+.drop:hover,.drop.over{border-color:var(--az);background:var(--az-bg)}
+.filelist{margin-top:14px}
+.filerow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 12px;border:1px solid var(--border);border-radius:7px;margin-bottom:6px;background:var(--bg);font-size:13.5px}
+.filerow .nm{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* tiles */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:10px;margin:14px 0}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:13px 15px}
+.tile .k{font-size:10.5px;font-weight:700;letter-spacing:.7px;color:var(--tx-3);text-transform:uppercase}
+.tile .v{font-size:24px;font-weight:700;margin:4px 0 2px;letter-spacing:-.5px}
+.tile .d{font-size:12px;color:var(--tx-2)}
+.tile.az .v{color:var(--az)} .tile.vm .v{color:var(--vm)}
+.tile.vd .v{color:var(--vd)} .tile.la .v{color:var(--la)}
+/* canvas */
+.chartbox{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px}
+.chartbox h3{margin:0 0 3px;font-size:14.5px}
+.chartbox .cap{font-size:12.5px;color:var(--tx-2);margin:0 0 12px}
+canvas{display:block;width:100%;border-radius:4px}
+/* tabela */
+table{border-collapse:collapse;width:100%;font-size:13.5px;margin:10px 0}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border)}
+th{font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--tx-3);font-weight:700}
+td.num{text-align:right;font-variant-numeric:tabular-nums}
+/* flags */
+.flag{display:flex;gap:11px;align-items:flex-start;padding:12px 14px;border-radius:8px;margin-bottom:8px;font-size:13.5px;border:1px solid transparent}
+.flag .ic{font-weight:700;flex-shrink:0;font-size:15px;line-height:1.3}
+.flag.on{background:var(--vm-bg);border-color:var(--vm)}
+.flag.on .ic{color:var(--vm)}
+.flag.off{background:var(--surface);border-color:var(--border)}
+.flag.off .ic{color:var(--vd)}
+.flag b{display:block;margin-bottom:2px}
+/* form */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12.5px;font-weight:600;color:var(--tx-2);margin-bottom:5px}
+input[type=text],textarea,select{
+  width:100%;font:inherit;font-size:14px;padding:9px 11px;border:1px solid var(--border-2);
+  border-radius:7px;background:var(--bg);color:var(--tx)
+}
+textarea{min-height:70px;resize:vertical}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--az);outline-offset:-1px;border-color:var(--az)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+/* relatorio */
+#reportOut{background:var(--bg);border:1px solid var(--border-2);border-radius:8px;padding:26px;font-size:14px;line-height:1.65}
+#reportOut h3{margin-top:20px}
+#reportOut .hdr{border-bottom:2px solid var(--tx);padding-bottom:10px;margin-bottom:16px}
+.quote{border-left:3px solid var(--az);background:var(--az-bg);padding:14px 16px;border-radius:0 7px 7px 0;margin:14px 0;font-size:13.5px}
+.hist{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;background:var(--surface)}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.3px}
+.badge.alerta{background:var(--vm-bg);color:var(--vm)}
+.badge.ok{background:var(--vd-bg);color:var(--vd)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+.hidden{display:none !important}
+.err{color:var(--vm);font-size:13px;margin-top:8px}
+footer{border-top:1px solid var(--border);margin-top:48px;padding-top:18px;color:var(--tx-3);font-size:12px}
+@media(max-width:640px){.row2{grid-template-columns:1fr}h1{font-size:19px}}
+@media print{
+  header.top,nav.tabs,.toolbar,#uploadCard,footer{display:none!important}
+  body{background:#fff;color:#000}
+  #reportOut{border:none;padding:0}
+}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="wrap">
+  <div>
+    <h1>Oxytracking</h1>
+    <p class="sub">Rastreio oximétrico noturno · análise de tendência e espectral de SpO<sub>2</sub> e frequência de pulso · ferramenta de rastreio, não diagnóstica</p>
+  </div>
+  <div style="display:flex;gap:8px">
+    <button class="ghost sm" id="btnTheme" title="Alternar tema">◐</button>
+  </div>
+</div></header>
+
+<div class="wrap">
+
+<!-- ============ TELA 1: CONSENTIMENTO ============ -->
+<section id="consent">
+  <div class="card">
+    <h2 style="margin-top:0">Diretrizes de uso e limitações</h2>
+
+    <div class="warnbox">
+      <strong>Esta ferramenta não emite diagnóstico.</strong><br>
+      Ela processa dados de um oxímetro de pulso domiciliar e produz índices descritivos.
+      Nenhum resultado aqui estabelece, confirma ou exclui apneia do sono, disautonomia,
+      arritmia ou qualquer outra condição clínica.
+    </div>
+
+    <h3>O que a ferramenta faz</h3>
+    <ul class="tight">
+      <li>Calcula índices de dessaturação (ODI 3% e 4%), carga hipoxêmica e nadir</li>
+      <li>Calcula índices de frequência de pulso em escala lenta (média, amplitude, dispersão de médias de 5 min)</li>
+      <li>Estima o período dominante de oscilação por análise espectral (método de Welch)</li>
+      <li>Estima a coerência espectral entre SpO<sub>2</sub> e frequência de pulso</li>
+      <li>Aplica critérios de disparo pré-definidos e gera relatório de encaminhamento</li>
+    </ul>
+
+    <h3>O que a ferramenta <em>não</em> faz</h3>
+    <ul class="tight">
+      <li><strong>Não calcula IAH.</strong> Oximetria isolada não mede fluxo aéreo, esforço torácico-abdominal nem EEG. Não distingue evento obstrutivo de central, e não detecta hipopneia com despertar sem dessaturação.</li>
+      <li><strong>Não calcula variabilidade da frequência cardíaca (VFC).</strong> O oxímetro entrega frequência de pulso já suavizada, não intervalos batimento-a-batimento. RMSSD, pNN50, SDNN e potência de alta frequência seriam artefato do filtro do aparelho. Apenas índices de escala lenta são reportados.</li>
+      <li><strong>Não substitui polissonografia</strong> nem avaliação cardiológica ou autonômica formal.</li>
+    </ul>
+
+    <h3>Confundidores que invalidam a leitura</h3>
+    <ul class="tight">
+      <li><strong>Medicação bradicardizante</strong> — betabloqueador, digoxina, amiodarona, ivabradina, alguns antidepressivos. Produzem o mesmo padrão de frequência de pulso baixa. O preenchimento do campo de medicação é obrigatório antes da emissão do relatório.</li>
+      <li><strong>Baixa perfusão periférica</strong> — gera oscilação lenta e rasa da SpO<sub>2</sub> indistinguível de instabilidade ventilatória real.</li>
+      <li><strong>Perda de contato do sensor</strong> — cria lacunas que reduzem a validade dos índices.</li>
+      <li><strong>Registro curto ou noite isolada</strong> — abaixo de 4 h válidas por noite, ou menos de 3 noites, os índices não são estáveis o suficiente para sustentar encaminhamento.</li>
+    </ul>
+
+    <h3>Privacidade</h3>
+    <p class="muted">Todo o processamento ocorre no seu navegador. Nenhum dado é enviado para servidor algum.
+    Os relatórios ficam armazenados apenas neste navegador, neste dispositivo, e são apagados se você limpar os dados do site.</p>
+
+    <label class="chk"><input type="checkbox" id="ck1">
+      <span>Compreendo que <strong>esta ferramenta não emite diagnóstico</strong> e que seus resultados não confirmam nem excluem qualquer condição clínica.</span></label>
+    <label class="chk"><input type="checkbox" id="ck2">
+      <span>Compreendo que os índices são de <strong>rastreio</strong> e que a confirmação exige polissonografia e avaliação médica presencial.</span></label>
+    <label class="chk"><input type="checkbox" id="ck3">
+      <span>Comprometo-me a <strong>registrar a medicação em uso</strong> e a considerar os confundidores listados antes de interpretar qualquer resultado.</span></label>
+
+    <button id="btnAceitar" disabled>Concordo e quero prosseguir</button>
+    <p class="tiny" style="margin-top:12px">Seu aceite fica registrado neste navegador com data e hora.</p>
+  </div>
+</section>
+
+<!-- ============ TELA 2: APLICAÇÃO ============ -->
+<section id="app" class="hidden">
+  <nav class="tabs" role="tablist">
+    <button role="tab" aria-selected="true"  data-tab="dados">Dados</button>
+    <button role="tab" aria-selected="false" data-tab="tend">Tendência</button>
+    <button role="tab" aria-selected="false" data-tab="esp">Espectro</button>
+    <button role="tab" aria-selected="false" data-tab="rel">Relatório</button>
+    <button role="tab" aria-selected="false" data-tab="hist">Histórico</button>
+  </nav>
+
+  <!-- DADOS -->
+  <div id="tab-dados">
+    <div class="card" id="uploadCard">
+      <h2 style="margin-top:0">Carregar registros</h2>
+      <p class="muted">Arquivos CSV do oxímetro, uma ou mais noites. Cabeçalho esperado:
+        <code>Date,Time,SpO2(%),PR(bpm)</code> — amostragem de 1 Hz.
+        Arquivos da mesma noite são unidos automaticamente.</p>
+      <div class="drop" id="drop">
+        <div style="font-size:15px;font-weight:600;margin-bottom:4px">Clique ou arraste os arquivos CSV</div>
+        <div class="tiny">Processamento local · nada é enviado</div>
+        <input type="file" id="fileIn" accept=".csv,text/csv" multiple class="hidden">
+      </div>
+      <div class="filelist" id="filelist"></div>
+      <div class="err hidden" id="loadErr"></div>
+      <div class="toolbar">
+        <button id="btnAnalisar" disabled>Analisar</button>
+        <button class="ghost" id="btnLimpar">Limpar</button>
+      </div>
+    </div>
+    <div id="resumoNoites"></div>
+  </div>
+
+  <!-- TENDÊNCIA -->
+  <div id="tab-tend" class="hidden">
+    <div id="tendVazio" class="card muted">Carregue e analise os registros na aba <strong>Dados</strong>.</div>
+    <div id="tendConteudo"></div>
+  </div>
+
+  <!-- ESPECTRO -->
+  <div id="tab-esp" class="hidden">
+    <div id="espVazio" class="card muted">Carregue e analise os registros na aba <strong>Dados</strong>.</div>
+    <div id="espConteudo"></div>
+  </div>
+
+  <!-- RELATÓRIO -->
+  <div id="tab-rel" class="hidden">
+    <div id="relVazio" class="card muted">Carregue e analise os registros na aba <strong>Dados</strong>.</div>
+    <div id="relConteudo" class="hidden">
+      <div class="card">
+        <h2 style="margin-top:0">Dados do registro</h2>
+        <div class="row2">
+          <div class="field"><label for="fId">Identificação (iniciais ou código)</label>
+            <input type="text" id="fId" placeholder="ex.: W.P.R."></div>
+          <div class="field"><label for="fIdade">Idade</label>
+            <input type="text" id="fIdade" placeholder="ex.: 78"></div>
+        </div>
+        <div class="field"><label for="fMed">Medicação em uso <span style="color:var(--vm)">— obrigatório</span></label>
+          <textarea id="fMed" placeholder="Liste todas as medicações, com atenção a betabloqueador, digoxina, amiodarona, ivabradina e antidepressivos. Escreva 'nenhuma' se for o caso."></textarea></div>
+        <div class="field"><label for="fClin">Contexto clínico e sintomas (opcional)</label>
+          <textarea id="fClin" placeholder="ex.: ronco, sonolência diurna, apneias presenciadas, fadiga, tontura postural, COVID-19 prévia..."></textarea></div>
+        <div class="field"><label for="fFCdia">FC de repouso diurna, se disponível (bpm)</label>
+          <input type="text" id="fFCdia" placeholder="necessária para estimar o descenso noturno"></div>
+        <button id="btnGerar">Gerar relatório</button>
+        <div class="err hidden" id="relErr"></div>
+      </div>
+      <div id="reportWrap" class="hidden">
+        <div class="toolbar">
+          <button id="btnSalvar">Salvar no histórico</button>
+          <button class="ghost" id="btnImprimir">Imprimir / PDF</button>
+          <button class="ghost" id="btnJson">Exportar JSON</button>
+        </div>
+        <div id="reportOut"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTÓRICO -->
+  <div id="tab-hist" class="hidden">
+    <div class="card">
+      <h2 style="margin-top:0">Relatórios armazenados</h2>
+      <p class="muted">Guardados apenas neste navegador e neste dispositivo.</p>
+      <div id="histList"></div>
+      <div class="toolbar"><button class="ghost sm" id="btnExpTudo">Exportar tudo (JSON)</button></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Ferramenta de rastreio. Não constitui diagnóstico nem substitui avaliação médica.
+  Processamento inteiramente local, executável offline.<br>
+  <strong>© 2026 Rachel Ingrid Pereira da Rocha Jannuzzi — Todos os direitos reservados.</strong>
+  Não é concedida licença de uso, cópia ou reprodução.
+</footer>
+</div>
+
+<script>
+"use strict";
+/* ============================================================
+   NÚCLEO NUMÉRICO — FFT, Welch, coerência, detecção de eventos
+   Sem dependências externas. Tudo roda offline.
+   ============================================================ */
+
+// ---- FFT iterativa radix-2 (in-place, complexa)
+function fft(re, im){
+  const n = re.length;
+  for(let i=1, j=0; i<n; i++){
+    let bit = n>>1;
+    for(; j & bit; bit>>=1) j ^= bit;
+    j ^= bit;
+    if(i < j){ [re[i],re[j]]=[re[j],re[i]]; [im[i],im[j]]=[im[j],im[i]]; }
+  }
+  for(let len=2; len<=n; len<<=1){
+    const ang = -2*Math.PI/len;
+    const wr = Math.cos(ang), wi = Math.sin(ang);
+    for(let i=0; i<n; i+=len){
+      let cr=1, ci=0;
+      for(let k=0; k<len/2; k++){
+        const ur=re[i+k],           ui=im[i+k];
+        const vr=re[i+k+len/2]*cr - im[i+k+len/2]*ci;
+        const vi=re[i+k+len/2]*ci + im[i+k+len/2]*cr;
+        re[i+k]=ur+vr;       im[i+k]=ui+vi;
+        re[i+k+len/2]=ur-vr; im[i+k+len/2]=ui-vi;
+        const ncr = cr*wr - ci*wi; ci = cr*wi + ci*wr; cr = ncr;
+      }
+    }
+  }
+}
+
+function hann(n){ const w=new Float64Array(n); for(let i=0;i<n;i++) w[i]=0.5-0.5*Math.cos(2*Math.PI*i/(n-1)); return w; }
+
+function detrendLinear(x){
+  const n=x.length; let sx=0,sy=0,sxx=0,sxy=0;
+  for(let i=0;i<n;i++){ sx+=i; sy+=x[i]; sxx+=i*i; sxy+=i*x[i]; }
+  const den=n*sxx-sx*sx;
+  const b=den===0?0:(n*sxy-sx*sy)/den, a=(sy-b*sx)/n;
+  const o=new Float64Array(n); for(let i=0;i<n;i++) o[i]=x[i]-(a+b*i);
+  return o;
+}
+
+// ---- PSD de Welch. fs em Hz. Retorna {f:[], p:[], k:nsegmentos}
+function welchPSD(sig, nseg, nover, fs){
+  const x = detrendLinear(sig);
+  const w = hann(nseg);
+  let U=0; for(let i=0;i<nseg;i++) U+=w[i]*w[i]; U/=nseg;
+  const step = nseg-nover, half = nseg/2;
+  const p = new Float64Array(half+1);
+  let k=0;
+  for(let s=0; s+nseg<=x.length; s+=step){
+    const re=new Float64Array(nseg), im=new Float64Array(nseg);
+    for(let i=0;i<nseg;i++) re[i]=x[s+i]*w[i];
+    fft(re,im);
+    for(let i=0;i<=half;i++){
+      let v=(re[i]*re[i]+im[i]*im[i])/(fs*nseg*U);
+      if(i>0 && i<half) v*=2;
+      p[i]+=v;
+    }
+    k++;
+  }
+  if(k===0) return null;
+  for(let i=0;i<=half;i++) p[i]/=k;
+  const f=new Float64Array(half+1);
+  for(let i=0;i<=half;i++) f[i]=i*fs/nseg;
+  return {f:f, p:p, k:k};
+}
+
+// ---- Coerência espectral de Welch
+function welchCoherence(a, b, nseg, nover, fs){
+  const x=detrendLinear(a), y=detrendLinear(b), w=hann(nseg);
+  const step=nseg-nover, half=nseg/2;
+  const Pxx=new Float64Array(half+1), Pyy=new Float64Array(half+1);
+  const Pxyr=new Float64Array(half+1), Pxyi=new Float64Array(half+1);
+  let k=0; const n=Math.min(x.length,y.length);
+  for(let s=0; s+nseg<=n; s+=step){
+    const xr=new Float64Array(nseg), xi=new Float64Array(nseg);
+    const yr=new Float64Array(nseg), yi=new Float64Array(nseg);
+    for(let i=0;i<nseg;i++){ xr[i]=x[s+i]*w[i]; yr[i]=y[s+i]*w[i]; }
+    fft(xr,xi); fft(yr,yi);
+    for(let i=0;i<=half;i++){
+      Pxx[i]+=xr[i]*xr[i]+xi[i]*xi[i];
+      Pyy[i]+=yr[i]*yr[i]+yi[i]*yi[i];
+      Pxyr[i]+=xr[i]*yr[i]+xi[i]*yi[i];       // X * conj(Y)
+      Pxyi[i]+=xi[i]*yr[i]-xr[i]*yi[i];
+    }
+    k++;
+  }
+  if(k===0) return null;
+  const c=new Float64Array(half+1), f=new Float64Array(half+1);
+  for(let i=0;i<=half;i++){
+    const den=Pxx[i]*Pyy[i];
+    c[i] = den>0 ? (Pxyr[i]*Pxyr[i]+Pxyi[i]*Pxyi[i])/den : 0;
+    f[i] = i*fs/nseg;
+  }
+  // Limiar de significância (Carter): 1 - alpha^(1/(keff-1)).
+  // Segmentos sobrepostos NÃO são independentes: corrige os graus de liberdade
+  // pela eficiência da janela de Hann (~0,94 a 50% de sobreposição).
+  const frac = nover/nseg;                       // fração de sobreposição
+  const efic = frac<=0 ? 1 : (frac<=0.5 ? 0.94 : 0.94*(1-frac)/0.5);
+  const keff = Math.max(2, Math.round(k*efic));
+  const lim = 1-Math.pow(0.05, 1/(keff-1));
+  return {f:f, c:c, k:k, keff:keff, lim:lim};
+}
+
+// ---- Detecção de dessaturações, método pico-vale
+function detectaDessat(s, queda){
+  const n=s.length, ev=[]; let i=1;
+  while(i<n-1){
+    let base=-Infinity;
+    for(let j=Math.max(0,i-10); j<=i; j++) if(s[j]>base) base=s[j];
+    const fim=Math.min(n, i+120);
+    let nad=Infinity, k=i;
+    for(let j=i; j<fim; j++) if(s[j]<nad){ nad=s[j]; k=j; }
+    if(base-nad >= queda){
+      let rec=-Infinity; const f2=Math.min(n,k+120);
+      for(let j=k; j<f2; j++) if(s[j]>rec) rec=s[j];
+      if(rec-nad >= queda/2){ ev.push({ini:i, nadIdx:k, base:base, nadir:nad, dur:k-i}); i=k+5; continue; }
+    }
+    i++;
+  }
+  return ev;
+}
+
+// ---- estatística auxiliar
+const med = a => { if(!a.length) return NaN; const b=[...a].sort((x,y)=>x-y); const m=b.length>>1;
+  return b.length%2 ? b[m] : (b[m-1]+b[m])/2; };
+const mean = a => a.length ? a.reduce((s,v)=>s+v,0)/a.length : NaN;
+const sd = a => { if(a.length<2) return NaN; const m=mean(a); return Math.sqrt(a.reduce((s,v)=>s+(v-m)*(v-m),0)/(a.length-1)); };
+const pct = (a,q) => { if(!a.length) return NaN; const b=[...a].sort((x,y)=>x-y);
+  const i=(b.length-1)*q/100, lo=Math.floor(i), hi=Math.ceil(i);
+  return lo===hi ? b[lo] : b[lo]+(b[hi]-b[lo])*(i-lo); };
+const nextPow2 = n => { let p=1; while(p*2<=n) p*=2; return p; };
+
+/* ============================================================
+   LEITURA DE CSV
+   ============================================================ */
+function parseCSV(texto, nomeArq){
+  const linhas = texto.split(/\r?\n/).filter(l=>l.trim());
+  if(linhas.length < 60) throw new Error(nomeArq+": arquivo com menos de 60 amostras.");
+  // localizar cabeçalho
+  let h0 = 0;
+  if(/date/i.test(linhas[0]) && /spo2/i.test(linhas[0])) h0 = 1;
+  const cab = linhas[0].split(',').map(s=>s.trim().toLowerCase());
+  let iD=0,iT=1,iS=2,iP=3;
+  if(h0===1){
+    cab.forEach((c,idx)=>{
+      if(/^date/.test(c)) iD=idx;
+      else if(/^time/.test(c)) iT=idx;
+      else if(/spo2|sp02|satur/.test(c)) iS=idx;
+      else if(/^pr|puls|bpm|hr|fc/.test(c)) iP=idx;
+    });
+  }
+  const t=[], spo2=[], pr=[];
+  for(let i=h0; i<linhas.length; i++){
+    const c = linhas[i].split(',');
+    if(c.length < 3) continue;
+    const s = parseFloat(c[iS]), p = parseFloat(c[iP]);
+    if(!isFinite(s) || !isFinite(p)) continue;
+    if(s < 50 || s > 100 || p < 20 || p > 250) continue;   // descarta artefato grosseiro
+    const d = parseDataHora(c[iD], c[iT]);
+    if(!d) continue;
+    t.push(d); spo2.push(s); pr.push(p);
+  }
+  if(t.length < 60) throw new Error(nomeArq+": nenhuma amostra válida reconhecida. Verifique o formato.");
+  return {arquivo:nomeArq, t:t, spo2:spo2, pr:pr};
+}
+
+function parseDataHora(ds, ts){
+  if(!ds || !ts) return null;
+  ds = ds.trim(); ts = ts.trim();
+  let a,m,d;
+  if(/^\d{4}-\d{1,2}-\d{1,2}$/.test(ds)){ const p=ds.split('-'); a=+p[0]; m=+p[1]; d=+p[2]; }
+  else { const p=ds.split(/[\/\-]/); if(p.length<3) return null;
+         m=+p[0]; d=+p[1]; a=+p[2]; if(a<100) a+=2000; }
+  const mt = ts.match(/(\d{1,2}):(\d{2}):?(\d{2})?\s*(AM|PM|am|pm)?/);
+  if(!mt) return null;
+  let hh=+mt[1]; const mm=+mt[2], ss=mt[3]?+mt[3]:0, ap=mt[4];
+  if(ap){ const u=ap.toUpperCase(); if(u==='PM' && hh!==12) hh+=12; if(u==='AM' && hh===12) hh=0; }
+  const dt = new Date(a, m-1, d, hh, mm, ss);
+  return isNaN(dt.getTime()) ? null : dt;
+}
+
+// agrupa arquivos por noite: mesma noite se início a menos de 14 h do fim anterior
+function agrupaNoites(regs){
+  regs.sort((x,y)=>x.t[0]-y.t[0]);
+  const noites=[];
+  for(const r of regs){
+    const ult = noites[noites.length-1];
+    if(ult){
+      const fim = ult.segs[ult.segs.length-1].t.slice(-1)[0];
+      if((r.t[0]-fim)/3.6e6 < 14){ ult.segs.push(r); continue; }
+    }
+    noites.push({segs:[r]});
+  }
+  noites.forEach((n,i)=>{
+    n.idx=i+1;
+    n.inicio=n.segs[0].t[0];
+    n.fim=n.segs[n.segs.length-1].t.slice(-1)[0];
+    n.rotulo=fmtData(n.inicio);
+  });
+  return noites;
+}
+
+const p2=v=>String(v).padStart(2,'0');
+const fmtData = d => `${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()}`;
+const fmtHora = d => `${p2(d.getHours())}:${p2(d.getMinutes())}`;
+const num = (v,c=1) => isFinite(v) ? v.toFixed(c).replace('.',',') : '—';
+
+/* ============================================================
+   ANÁLISE DE UMA NOITE
+   ============================================================ */
+function analisaNoite(noite){
+  const R = {rotulo:noite.rotulo, inicio:noite.inicio, fim:noite.fim, segs:[]};
+  let totalS=0, allSpo2=[], allPr=[], nEv4=0, nEv3=0, durs=[], nadires=[], ciclos=[];
+
+  for(const s of noite.segs){
+    const n=s.spo2.length;
+    const ev4=detectaDessat(s.spo2,4), ev3=detectaDessat(s.spo2,3);
+    nEv4+=ev4.length; nEv3+=ev3.length;
+    ev4.forEach(e=>{ durs.push(e.dur); nadires.push(e.nadir); });
+    for(let i=1;i<ev4.length;i++){ const c=ev4[i].ini-ev4[i-1].ini; if(c<180) ciclos.push(c); }
+    totalS+=n; allSpo2=allSpo2.concat(s.spo2); allPr=allPr.concat(s.pr);
+    R.segs.push({t:s.t, spo2:s.spo2, pr:s.pr, ev4:ev4, arquivo:s.arquivo});
+  }
+
+  const h = totalS/3600;
+  R.horas=h; R.amostras=totalS;
+  R.lacunaMin = Math.max(0, (noite.fim-noite.inicio)/60000 - totalS/60);
+
+  // --- SpO2
+  R.spo2Media = mean(allSpo2);
+  R.spo2Nadir = Math.min(...allSpo2);
+  R.odi4 = nEv4/h; R.odi3 = nEv3/h; R.nEv4=nEv4;
+  R.t90 = allSpo2.filter(v=>v<90).length;
+  R.t93 = allSpo2.filter(v=>v<=93).length;
+  R.t88 = allSpo2.filter(v=>v<=88).length;
+  R.durMediana = med(durs);
+  R.nadirMediano = med(nadires);
+  R.nadirRaso = nadires.length ? 100*nadires.filter(v=>v>=94).length/nadires.length : NaN;
+  R.cicloMediano = med(ciclos);
+
+  // --- FC (apenas índices de escala lenta — ver diretrizes)
+  R.fcMedia = mean(allPr);
+  R.fcMin = Math.min(...allPr);
+  R.fcMax = Math.max(...allPr);
+  R.fcP5 = pct(allPr,5); R.fcP95 = pct(allPr,95);
+  R.fcAmplitude = R.fcP95-R.fcP5;
+  R.fcSub70 = 100*allPr.filter(v=>v<70).length/allPr.length;
+  // dispersão das médias de 5 min (proxy de SDANN)
+  const m5=[];
+  for(let i=0;i+300<=allPr.length;i+=300) m5.push(mean(allPr.slice(i,i+300)));
+  R.fcSDmedias5 = sd(m5);
+  // diferença entre blocos (detecta degrau intranoite)
+  if(R.segs.length>1){
+    const meds = R.segs.map(s=>mean(s.pr));
+    R.fcDegrau = Math.max(...meds)-Math.min(...meds);
+  } else R.fcDegrau = 0;
+  // rigidez de sinal: fração de amostras consecutivas idênticas (qualidade/suavização)
+  let ident=0; for(let i=1;i<allPr.length;i++) if(allPr[i]===allPr[i-1]) ident++;
+  R.fcIdenticas = 100*ident/(allPr.length-1);
+
+  // --- espectro, no segmento mais longo
+  const longo = R.segs.reduce((a,b)=> b.spo2.length>a.spo2.length ? b : a);
+  R.espSegMin = longo.spo2.length/60;
+  const nseg = Math.min(2048, nextPow2(Math.floor(longo.spo2.length/3)));
+  if(nseg>=256){
+    const pS = welchPSD(Float64Array.from(longo.spo2), nseg, nseg*3/4, 1);
+    const pP = welchPSD(Float64Array.from(longo.pr),   nseg, nseg*3/4, 1);
+    const co = welchCoherence(Float64Array.from(longo.spo2), Float64Array.from(longo.pr), nseg, nseg/2, 1);
+    R.psdSpo2=pS; R.psdPr=pP; R.coer=co; R.nseg=nseg;
+
+    // pico dominante entre 4 e 60 mHz
+    let melhor=-1, fm=0;
+    for(let i=0;i<pS.f.length;i++){
+      if(pS.f[i]>=0.004 && pS.f[i]<=0.06 && pS.p[i]>melhor){ melhor=pS.p[i]; fm=pS.f[i]; }
+    }
+    R.picoHz=fm; R.picoPeriodo = fm>0 ? 1/fm : NaN;
+
+    // potência relativa por banda
+    const bandaP=(p,f,lo,hi)=>{ let s=0; for(let i=1;i<f.length;i++) if(f[i]>=lo&&f[i]<=hi) s+=p[i]*(f[i]-f[i-1]); return s; };
+    const tot = bandaP(pS.p,pS.f,0.003,0.4) || 1;
+    R.bandaVLF = 100*bandaP(pS.p,pS.f,0.003,0.010)/tot;
+    R.bandaRP  = 100*bandaP(pS.p,pS.f,0.010,0.040)/tot;
+    R.bandaLF  = 100*bandaP(pS.p,pS.f,0.040,0.150)/tot;
+
+    // coerência média na banda de respiração periódica
+    let sc=0,nc=0, cmax=0, cmaxF=0;
+    for(let i=0;i<co.f.length;i++){
+      if(co.f[i]>=0.010 && co.f[i]<=0.040){ sc+=co.c[i]; nc++; if(co.c[i]>cmax){cmax=co.c[i]; cmaxF=co.f[i];} }
+    }
+    R.coerMedia = nc? sc/nc : NaN;
+    R.coerMax = cmax; R.coerMaxF = cmaxF; R.coerLim = co.lim;
+  }
+  return R;
+}
+
+/* ============================================================
+   CRITÉRIOS DE DISPARO
+   ============================================================ */
+function avaliaCriterios(noites, fcDiurna){
+  const medias = noites.map(n=>n.fcMedia);
+  const fcMed = med(medias);
+  const ampl = med(noites.map(n=>n.fcAmplitude));
+  const odi  = med(noites.map(n=>n.odi4));
+  const t90  = med(noites.map(n=>n.t90));
+  const degrau = Math.max(...noites.map(n=>n.fcDegrau));
+  const horas = noites.map(n=>n.horas);
+  const nNoites = noites.length;
+
+  const C=[];
+  C.push({id:'fc', nome:'Frequência de pulso noturna fora da faixa',
+    crit:'mediana < 55 ou > 85 bpm',
+    valor: num(fcMed,1)+' bpm',
+    on: fcMed<55 || fcMed>85});
+  let dipOn=false, dipVal='sem FC diurna de referência';
+  if(isFinite(fcDiurna) && fcDiurna>0){
+    const dip = 100*(fcDiurna-fcMed)/fcDiurna;
+    dipVal = num(dip,1)+'% de descenso';
+    dipOn = dip < 10;
+  }
+  C.push({id:'dip', nome:'Descenso noturno da frequência de pulso atenuado',
+    crit:'< 10% em relação ao repouso diurno', valor:dipVal, on:dipOn,
+    indef: !(isFinite(fcDiurna) && fcDiurna>0)});
+  C.push({id:'ampl', nome:'Reatividade da frequência de pulso reduzida',
+    crit:'amplitude p5–p95 < 8 bpm', valor: num(ampl,1)+' bpm', on: ampl<8});
+  C.push({id:'degrau', nome:'Degrau abrupto e sustentado dentro da mesma noite',
+    crit:'variação > 10 bpm entre blocos', valor: num(degrau,1)+' bpm', on: degrau>10});
+  C.push({id:'odi', nome:'Índice de dessaturação elevado',
+    crit:'ODI 4% mediano ≥ 15/h', valor: num(odi,1)+'/h', on: odi>=15});
+  C.push({id:'t90', nome:'Carga hipoxêmica relevante',
+    crit:'T90 mediano > 300 s', valor: Math.round(t90)+' s', on: t90>300});
+
+  const disparos = C.filter(c=>c.on).length;
+  const horasOk = horas.filter(h=>h>=4).length;
+  const suficiencia = {
+    noitesOk: nNoites>=3,
+    nNoites: nNoites,
+    horasOk: horasOk===nNoites,
+    horasMin: Math.min(...horas),
+    fcDiurna: isFinite(fcDiurna) && fcDiurna>0
+  };
+  return {criterios:C, disparos:disparos, fcMediana:fcMed, odiMediano:odi, suficiencia:suficiencia};
+}
+
+/* ============================================================
+   GRÁFICOS (canvas, sem biblioteca)
+   ============================================================ */
+function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+function setupCanvas(cv, hCSS){
+  const dpr = window.devicePixelRatio||1;
+  const w = cv.clientWidth || 900;
+  cv.style.height = hCSS+'px';
+  cv.width = Math.round(w*dpr); cv.height = Math.round(hCSS*dpr);
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,w,hCSS);
+  return {ctx, w, h:hCSS};
+}
+
+function eixos(ctx,L,T,W,H,xt,yt,xlab,ylab){
+  const cB=css('--border-2'), cT=css('--tx-3'), cG=css('--border');
+  ctx.strokeStyle=cG; ctx.lineWidth=1; ctx.font='11px -apple-system,Helvetica,Arial,sans-serif';
+  ctx.fillStyle=cT;
+  yt.forEach(o=>{
+    const y=T+H-(o.v-yt.min)*H/(yt.max-yt.min);
+    if(!isFinite(y)) return;
+    ctx.beginPath(); ctx.moveTo(L,y); ctx.lineTo(L+W,y); ctx.stroke();
+    ctx.textAlign='right'; ctx.textBaseline='middle'; ctx.fillText(o.l, L-7, y);
+  });
+  xt.forEach(o=>{
+    const x=L+(o.v-xt.min)*W/(xt.max-xt.min);
+    if(!isFinite(x)) return;
+    ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillText(o.l, x, T+H+7);
+  });
+  ctx.strokeStyle=cB; ctx.beginPath();
+  ctx.moveTo(L,T); ctx.lineTo(L,T+H); ctx.lineTo(L+W,T+H); ctx.stroke();
+  ctx.fillStyle=cT; ctx.textAlign='center';
+  if(xlab) ctx.fillText(xlab, L+W/2, T+H+26);
+  if(ylab){ ctx.save(); ctx.translate(13,T+H/2); ctx.rotate(-Math.PI/2);
+            ctx.textBaseline='middle'; ctx.fillText(ylab,0,0); ctx.restore(); }
+}
+
+function ticksLin(min,max,n,fmt){
+  const out=[]; const step=(max-min)/n;
+  for(let i=0;i<=n;i++){ const v=min+step*i; out.push({v:v,l:fmt?fmt(v):num(v,0)}); }
+  out.min=min; out.max=max; return out;
+}
+
+// ---- gráfico de tendência de uma noite
+function desenhaTendencia(cv, R){
+  const {ctx,w,h}=setupCanvas(cv, 320);
+  const L=52, Tp=14, Rr=14, gap=26;
+  const W=w-L-Rr, Hs=150, Hp=90, Tp2=Tp+Hs+gap;
+  const t0=R.inicio.getTime(), t1=R.fim.getTime();
+  const sx = t => L + (t-t0)*W/(t1-t0);
+
+  // eixo tempo
+  const nT=6, xt=[];
+  for(let i=0;i<=nT;i++){ const tv=t0+(t1-t0)*i/nT; xt.push({v:tv,l:fmtHora(new Date(tv))}); }
+  xt.min=t0; xt.max=t1;
+
+  // --- painel SpO2
+  const yMin=Math.max(80, Math.floor(R.spo2Nadir-2)), yMax=100;
+  const sy = v => Tp + Hs - (v-yMin)*Hs/(yMax-yMin);
+  const ytS = ticksLin(yMin,yMax,4,v=>Math.round(v)+'%'); ytS.min=yMin; ytS.max=yMax;
+  eixos(ctx,L,Tp,W,Hs,xt,ytS,'','SpO2 (%)');
+
+  // linha 90%
+  ctx.strokeStyle=css('--vm'); ctx.setLineDash([4,4]); ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(L,sy(90)); ctx.lineTo(L+W,sy(90)); ctx.stroke(); ctx.setLineDash([]);
+
+  for(const s of R.segs){
+    // sinal bruto
+    ctx.strokeStyle=css('--az'); ctx.globalAlpha=.32; ctx.lineWidth=.8;
+    ctx.beginPath();
+    for(let i=0;i<s.spo2.length;i+=2){
+      const x=sx(s.t[i].getTime()), y=sy(s.spo2[i]);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.stroke(); ctx.globalAlpha=1;
+    // média móvel 5 min
+    ctx.strokeStyle=css('--az'); ctx.lineWidth=2; ctx.beginPath();
+    const mm=movMean(s.spo2,300); let started=false;
+    for(let i=0;i<mm.length;i+=5){
+      if(!isFinite(mm[i])) continue;
+      const x=sx(s.t[i].getTime()), y=sy(mm[i]);
+      started?ctx.lineTo(x,y):(ctx.moveTo(x,y),started=true);
+    }
+    ctx.stroke();
+    // marcadores de dessaturação
+    ctx.fillStyle=css('--vm');
+    for(const e of s.ev4){
+      const x=sx(s.t[e.nadIdx].getTime()), y=sy(e.nadir);
+      ctx.beginPath(); ctx.moveTo(x-3,y-6); ctx.lineTo(x+3,y-6); ctx.lineTo(x,y-1); ctx.closePath(); ctx.fill();
+    }
+  }
+
+  // --- painel FC
+  const pMin=Math.floor(R.fcMin-4), pMax=Math.ceil(R.fcMax+4);
+  const py = v => Tp2 + Hp - (v-pMin)*Hp/(pMax-pMin);
+  const ytP = ticksLin(pMin,pMax,3,v=>Math.round(v)); ytP.min=pMin; ytP.max=pMax;
+  eixos(ctx,L,Tp2,W,Hp,xt,ytP,'Hora','FC (bpm)');
+
+  for(const s of R.segs){
+    ctx.strokeStyle=css('--vm'); ctx.globalAlpha=.28; ctx.lineWidth=.8; ctx.beginPath();
+    for(let i=0;i<s.pr.length;i+=2){
+      const x=sx(s.t[i].getTime()), y=py(s.pr[i]);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.stroke(); ctx.globalAlpha=1;
+    ctx.strokeStyle=css('--vm'); ctx.lineWidth=2; ctx.beginPath();
+    const mm=movMean(s.pr,300); let st=false;
+    for(let i=0;i<mm.length;i+=5){
+      if(!isFinite(mm[i])) continue;
+      const x=sx(s.t[i].getTime()), y=py(mm[i]);
+      st?ctx.lineTo(x,y):(ctx.moveTo(x,y),st=true);
+    }
+    ctx.stroke();
+  }
+
+  // sombrear lacunas entre segmentos
+  ctx.fillStyle=css('--border'); ctx.globalAlpha=.55;
+  for(let i=1;i<R.segs.length;i++){
+    const a=sx(R.segs[i-1].t.slice(-1)[0].getTime()), b=sx(R.segs[i].t[0].getTime());
+    if(b-a>2){ ctx.fillRect(a,Tp,b-a,Hs); ctx.fillRect(a,Tp2,b-a,Hp); }
+  }
+  ctx.globalAlpha=1;
+}
+
+function movMean(arr, w){
+  const n=arr.length, out=new Float64Array(n).fill(NaN);
+  if(n<w) return out;
+  let s=0; for(let i=0;i<w;i++) s+=arr[i];
+  const half=w>>1;
+  for(let i=half; i<n-w+half+1; i++){
+    out[i]=s/w;
+    const add=i+half+1, rem=i-half;
+    if(add<n){ s+=arr[add]-arr[rem]; }
+  }
+  return out;
+}
+
+// ---- PSD (escala log em y, log em x)
+function desenhaPSD(cv, psd, cor, titulo, picoHz){
+  const {ctx,w}=setupCanvas(cv, 210);
+  const L=58,T=12,Rr=16,H=150,W=w-L-Rr;
+  const fLo=0.004, fHi=0.06;
+  const pts=[];
+  for(let i=0;i<psd.f.length;i++) if(psd.f[i]>=fLo && psd.f[i]<=fHi && psd.p[i]>0) pts.push([psd.f[i],psd.p[i]]);
+  if(!pts.length) return;
+  const yv=pts.map(p=>Math.log10(p[1]));
+  const yMin=Math.min(...yv), yMax=Math.max(...yv);
+  const sx = f => L + (f-fLo)*W/(fHi-fLo);
+  const sy = p => T + H - (Math.log10(p)-yMin)*H/((yMax-yMin)||1);
+
+  const xt=[10,20,30,40,50,60].map(v=>({v:v/1000,l:v})); xt.min=fLo; xt.max=fHi;
+  const yt=[]; for(let i=0;i<=3;i++){ const lv=yMin+(yMax-yMin)*i/3;
+    yt.push({v:lv,l:Math.pow(10,lv).toPrecision(2)}); } yt.min=yMin; yt.max=yMax;
+  const yt2 = yt.map(o=>({v:o.v,l:o.l})); yt2.min=yMin; yt2.max=yMax;
+  eixos(ctx,L,T,W,H,xt,yt2,'Frequência (mHz)',titulo);
+
+  // faixa de respiração periódica
+  ctx.fillStyle=css('--la'); ctx.globalAlpha=.10;
+  ctx.fillRect(sx(0.010),T,sx(0.040)-sx(0.010),H); ctx.globalAlpha=1;
+
+  ctx.strokeStyle=cor; ctx.lineWidth=1.6; ctx.beginPath();
+  pts.forEach((p,i)=>{ const x=sx(p[0]), y=sy(p[1]); i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
+  ctx.stroke();
+
+  if(isFinite(picoHz) && picoHz>=fLo && picoHz<=fHi){
+    ctx.strokeStyle=css('--tx-2'); ctx.setLineDash([3,3]); ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(sx(picoHz),T); ctx.lineTo(sx(picoHz),T+H); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle=css('--tx-2'); ctx.font='10.5px -apple-system,Helvetica,Arial,sans-serif';
+    ctx.textAlign='left'; ctx.textBaseline='top';
+    ctx.fillText(Math.round(1/picoHz)+' s', sx(picoHz)+4, T+3);
+  }
+}
+
+// ---- coerência
+function desenhaCoer(cv, co){
+  const {ctx,w}=setupCanvas(cv, 200);
+  const L=58,T=12,Rr=16,H=140,W=w-L-Rr;
+  const fLo=0.004,fHi=0.06;
+  const sx=f=>L+(f-fLo)*W/(fHi-fLo), sy=c=>T+H-c*H;
+  const xt=[10,20,30,40,50,60].map(v=>({v:v/1000,l:v})); xt.min=fLo; xt.max=fHi;
+  const yt=[0,.25,.5,.75,1].map(v=>({v:v,l:num(v,2)})); yt.min=0; yt.max=1;
+  eixos(ctx,L,T,W,H,xt,yt,'Frequência (mHz)','Coerência SpO2 × FC');
+
+  ctx.fillStyle=css('--la'); ctx.globalAlpha=.10;
+  ctx.fillRect(sx(0.010),T,sx(0.040)-sx(0.010),H); ctx.globalAlpha=1;
+
+  ctx.strokeStyle=css('--vm'); ctx.setLineDash([5,4]); ctx.lineWidth=1.2;
+  ctx.beginPath(); ctx.moveTo(L,sy(co.lim)); ctx.lineTo(L+W,sy(co.lim)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle=css('--vm'); ctx.font='10.5px -apple-system,Helvetica,Arial,sans-serif';
+  ctx.textAlign='right'; ctx.textBaseline='bottom'; ctx.fillText('p<0,05', L+W, sy(co.lim)-3);
+
+  ctx.strokeStyle=css('--tx-2'); ctx.lineWidth=1.5; ctx.beginPath();
+  let st=false;
+  for(let i=0;i<co.f.length;i++){
+    if(co.f[i]<fLo||co.f[i]>fHi) continue;
+    const x=sx(co.f[i]), y=sy(co.c[i]);
+    st?ctx.lineTo(x,y):(ctx.moveTo(x,y),st=true);
+  }
+  ctx.stroke();
+}
+
+/* ============================================================
+   INTERFACE
+   ============================================================ */
+const LS_CONSENT='oxytracking.consent.v1';
+const LS_REL='oxytracking.relatorios.v1';
+let ARQUIVOS=[], NOITES=[], ANALISES=[], AVAL=null, RELATORIO=null;
+
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+// --- tema
+$('#btnTheme').onclick = ()=>{
+  const cur=document.documentElement.getAttribute('data-theme');
+  const novo = cur==='dark' ? 'light' : (cur==='light' ? 'dark' :
+    (matchMedia('(prefers-color-scheme:dark)').matches?'light':'dark'));
+  document.documentElement.setAttribute('data-theme',novo);
+  if(ANALISES.length) setTimeout(redesenhaTudo,30);
+};
+
+// --- consentimento
+function checaConsent(){
+  $('#btnAceitar').disabled = !($('#ck1').checked && $('#ck2').checked && $('#ck3').checked);
+}
+['ck1','ck2','ck3'].forEach(id=>$('#'+id).addEventListener('change',checaConsent));
+
+$('#btnAceitar').onclick = ()=>{
+  try{ localStorage.setItem(LS_CONSENT, new Date().toISOString()); }catch(e){}
+  abreApp();
+};
+function abreApp(){
+  $('#consent').classList.add('hidden');
+  $('#app').classList.remove('hidden');
+  renderHistorico();
+}
+try{ if(localStorage.getItem(LS_CONSENT)) abreApp(); }catch(e){}
+
+// --- abas
+$$('nav.tabs button').forEach(b=>{
+  b.onclick = ()=>{
+    $$('nav.tabs button').forEach(x=>x.setAttribute('aria-selected','false'));
+    b.setAttribute('aria-selected','true');
+    ['dados','tend','esp','rel','hist'].forEach(t=>{
+      $('#tab-'+t).classList.toggle('hidden', t!==b.dataset.tab);
+    });
+    if(ANALISES.length) setTimeout(redesenhaTudo,20);
+  };
+});
+
+// --- upload
+const drop=$('#drop'), fileIn=$('#fileIn');
+drop.onclick = ()=>fileIn.click();
+drop.ondragover = e=>{ e.preventDefault(); drop.classList.add('over'); };
+drop.ondragleave = ()=>drop.classList.remove('over');
+drop.ondrop = e=>{ e.preventDefault(); drop.classList.remove('over'); recebe(e.dataTransfer.files); };
+fileIn.onchange = e=>recebe(e.target.files);
+
+function recebe(fl){
+  $('#loadErr').classList.add('hidden');
+  const erros=[];
+  let pend=fl.length;
+  if(!pend) return;
+  [...fl].forEach(f=>{
+    const fr=new FileReader();
+    fr.onload = ()=>{
+      try{
+        const r=parseCSV(fr.result, f.name);
+        if(!ARQUIVOS.some(a=>a.arquivo===r.arquivo && +a.t[0]===+r.t[0])) ARQUIVOS.push(r);
+      }catch(err){ erros.push(err.message); }
+      if(--pend===0) finalizaCarga(erros);
+    };
+    fr.onerror = ()=>{ erros.push(f.name+': falha de leitura.'); if(--pend===0) finalizaCarga(erros); };
+    fr.readAsText(f);
+  });
+}
+function finalizaCarga(erros){
+  renderFiles();
+  if(erros.length){ $('#loadErr').textContent=erros.join(' '); $('#loadErr').classList.remove('hidden'); }
+  $('#btnAnalisar').disabled = ARQUIVOS.length===0;
+}
+function renderFiles(){
+  const el=$('#filelist');
+  if(!ARQUIVOS.length){ el.innerHTML=''; return; }
+  el.innerHTML = ARQUIVOS.map((a,i)=>{
+    const h=(a.t.length/3600).toFixed(2).replace('.',',');
+    return `<div class="filerow">
+      <span class="nm">${esc(a.arquivo)}</span>
+      <span class="muted" style="white-space:nowrap">${fmtData(a.t[0])} · ${fmtHora(a.t[0])}–${fmtHora(a.t.slice(-1)[0])} · ${h} h</span>
+      <button class="ghost sm" data-rm="${i}">remover</button></div>`;
+  }).join('');
+  el.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{
+    ARQUIVOS.splice(+b.dataset.rm,1); renderFiles();
+    $('#btnAnalisar').disabled = ARQUIVOS.length===0;
+  });
+}
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+$('#btnLimpar').onclick = ()=>{
+  ARQUIVOS=[]; NOITES=[]; ANALISES=[]; AVAL=null; RELATORIO=null;
+  renderFiles(); $('#btnAnalisar').disabled=true;
+  $('#resumoNoites').innerHTML='';
+  $('#tendConteudo').innerHTML=''; $('#tendVazio').classList.remove('hidden');
+  $('#espConteudo').innerHTML='';  $('#espVazio').classList.remove('hidden');
+  $('#relConteudo').classList.add('hidden'); $('#relVazio').classList.remove('hidden');
+  $('#reportWrap').classList.add('hidden');
+};
+
+// --- análise
+$('#btnAnalisar').onclick = ()=>{
+  NOITES = agrupaNoites(ARQUIVOS.map(a=>({...a})));
+  ANALISES = NOITES.map(analisaNoite);
+  renderResumo(); renderTendencia(); renderEspectro();
+  $('#relVazio').classList.add('hidden'); $('#relConteudo').classList.remove('hidden');
+};
+
+function renderResumo(){
+  const rows = ANALISES.map(R=>`<tr>
+     <td>${R.rotulo}</td>
+     <td class="num">${num(R.horas,2)}</td>
+     <td class="num">${num(R.lacunaMin,0)}</td>
+     <td class="num">${num(R.odi4,1)}</td>
+     <td class="num">${num(R.spo2Nadir,0)}</td>
+     <td class="num">${Math.round(R.t90)}</td>
+     <td class="num">${num(R.fcMedia,1)}</td>
+     <td class="num">${isFinite(R.picoPeriodo)?Math.round(R.picoPeriodo):'—'}</td></tr>`).join('');
+  const avisos=[];
+  ANALISES.forEach(R=>{
+    if(R.horas<4) avisos.push(`<strong>${R.rotulo}</strong>: apenas ${num(R.horas,2)} h válidas — abaixo do mínimo de 4 h.`);
+    if(R.lacunaMin>30) avisos.push(`<strong>${R.rotulo}</strong>: ${Math.round(R.lacunaMin)} min de lacuna no registro.`);
+    if(R.fcIdenticas>60) avisos.push(`<strong>${R.rotulo}</strong>: ${num(R.fcIdenticas,0)}% das amostras de FC são idênticas à anterior — sinal fortemente suavizado pelo aparelho. Índices de VFC não são calculáveis.`);
+  });
+  if(ANALISES.length<3) avisos.push(`Apenas ${ANALISES.length} noite(s). São necessárias <strong>3 a 5 noites</strong> para que os índices sustentem encaminhamento.`);
+  $('#resumoNoites').innerHTML = `
+   <div class="card"><h2 style="margin-top:0">Noites processadas</h2>
+    <table><thead><tr><th>Noite</th><th style="text-align:right">Horas</th>
+      <th style="text-align:right">Lacuna (min)</th><th style="text-align:right">ODI4 /h</th>
+      <th style="text-align:right">Nadir %</th><th style="text-align:right">T90 (s)</th>
+      <th style="text-align:right">FC média</th><th style="text-align:right">Ciclo (s)</th></tr></thead>
+     <tbody>${rows}</tbody></table>
+    ${avisos.length?`<div class="warnbox"><strong>Limitações deste conjunto</strong><ul class="tight" style="margin-bottom:0">${avisos.map(a=>'<li>'+a+'</li>').join('')}</ul></div>`:''}
+   </div>`;
+}
+
+function renderTendencia(){
+  $('#tendVazio').classList.add('hidden');
+  $('#tendConteudo').innerHTML = ANALISES.map((R,i)=>`
+    <div class="chartbox">
+      <h3>${R.rotulo} — tendência noturna</h3>
+      <p class="cap">Linha fina: sinal a 1 Hz. Linha grossa: média móvel de 5 min.
+         ▼ marca dessaturação ≥ 4%. Faixa cinza: sem registro.</p>
+      <canvas id="cvT${i}"></canvas>
+      <div class="tiles" style="margin-bottom:0">
+        <div class="tile az"><div class="k">SpO2 média</div><div class="v">${num(R.spo2Media,1)}%</div>
+          <div class="d">nadir ${R.spo2Nadir}%</div></div>
+        <div class="tile vm"><div class="k">ODI 4%</div><div class="v">${num(R.odi4,1)}</div>
+          <div class="d">${R.nEv4} eventos · ODI3 ${num(R.odi3,1)}</div></div>
+        <div class="tile"><div class="k">T90</div><div class="v">${Math.round(R.t90)} s</div>
+          <div class="d">${num(100*R.t90/R.amostras,1)}% do registro</div></div>
+        <div class="tile vd"><div class="k">FC média</div><div class="v">${num(R.fcMedia,1)}</div>
+          <div class="d">${num(R.fcSub70,0)}% do tempo &lt; 70 bpm</div></div>
+        <div class="tile"><div class="k">Amplitude FC</div><div class="v">${num(R.fcAmplitude,0)}</div>
+          <div class="d">p5–p95 · mín ${R.fcMin}</div></div>
+        <div class="tile"><div class="k">Nadir raso</div><div class="v">${num(R.nadirRaso,0)}%</div>
+          <div class="d">eventos com nadir ≥ 94%</div></div>
+      </div>
+    </div>`).join('');
+}
+
+function renderEspectro(){
+  $('#espVazio').classList.add('hidden');
+  $('#espConteudo').innerHTML = ANALISES.map((R,i)=>{
+    if(!R.psdSpo2) return `<div class="card muted">${R.rotulo}: segmento contínuo curto demais para análise espectral (mínimo de ~9 min ininterruptos).</div>`;
+    const coerTxt = R.coerMedia >= R.coerLim
+      ? 'acima do limiar — há acoplamento consistente entre SpO2 e FC'
+      : 'abaixo do limiar — acoplamento fraco ou fragmentado';
+    return `
+    <div class="chartbox">
+      <h3>${R.rotulo} — análise espectral</h3>
+      <p class="cap">Método de Welch, janela de ${R.nseg} s, ${R.psdSpo2.k} segmentos promediados (${R.coer.keff} independentes para a coerência),
+        sobre o trecho contínuo mais longo (${num(R.espSegMin,0)} min).
+        Faixa sombreada: respiração periódica (10–40 mHz, ciclos de 25–100 s).</p>
+      <canvas id="cvP${i}"></canvas>
+      <canvas id="cvQ${i}" style="margin-top:10px"></canvas>
+      <canvas id="cvC${i}" style="margin-top:10px"></canvas>
+      <div class="tiles" style="margin-bottom:0">
+        <div class="tile la"><div class="k">Período dominante</div>
+          <div class="v">${isFinite(R.picoPeriodo)?Math.round(R.picoPeriodo)+' s':'—'}</div>
+          <div class="d">${num(R.picoHz*1000,1)} mHz</div></div>
+        <div class="tile"><div class="k">Banda 10–40 mHz</div><div class="v">${num(R.bandaRP,1)}%</div>
+          <div class="d">da potência total</div></div>
+        <div class="tile"><div class="k">Banda VLF</div><div class="v">${num(R.bandaVLF,1)}%</div>
+          <div class="d">3–10 mHz · deriva lenta</div></div>
+        <div class="tile az"><div class="k">Coerência média</div><div class="v">${num(R.coerMedia,2)}</div>
+          <div class="d">limiar ${num(R.coerLim,2)} · ${coerTxt}</div></div>
+      </div>
+      <p class="tiny" style="margin-top:12px">
+        Período dominante longo (&gt; 60 s) sugere atraso circulatório prolongado.
+        Coerência alta e sustentada favorece resposta autonômica estereotipada a cada evento;
+        coerência fragmentada favorece oscilação ventilatória intermitente. Nenhuma das duas é diagnóstica.</p>
+    </div>`;
+  }).join('');
+}
+
+function redesenhaTudo(){
+  ANALISES.forEach((R,i)=>{
+    const t=document.getElementById('cvT'+i); if(t) desenhaTendencia(t,R);
+    if(R.psdSpo2){
+      const p=document.getElementById('cvP'+i); if(p) desenhaPSD(p,R.psdSpo2,css('--az'),'PSD SpO2',R.picoHz);
+      const q=document.getElementById('cvQ'+i); if(q) desenhaPSD(q,R.psdPr,css('--vm'),'PSD FC',NaN);
+      const c=document.getElementById('cvC'+i); if(c) desenhaCoer(c,R.coer);
+    }
+  });
+}
+window.addEventListener('resize', ()=>{ if(ANALISES.length) redesenhaTudo(); });
+
+/* ---------------- RELATÓRIO ---------------- */
+$('#btnGerar').onclick = ()=>{
+  const med = $('#fMed').value.trim();
+  if(!med){
+    $('#relErr').textContent='O campo de medicação é obrigatório. Sem ele, a taxa de falso-positivo do rastreio inviabiliza o resultado.';
+    $('#relErr').classList.remove('hidden'); return;
+  }
+  $('#relErr').classList.add('hidden');
+  const fcDia = parseFloat(String($('#fFCdia').value).replace(',','.'));
+  AVAL = avaliaCriterios(ANALISES, fcDia);
+  RELATORIO = montaRelatorio({
+    id:$('#fId').value.trim(), idade:$('#fIdade').value.trim(),
+    medicacao:med, clinica:$('#fClin').value.trim(), fcDiurna:fcDia
+  });
+  $('#reportOut').innerHTML = RELATORIO.html;
+  $('#reportWrap').classList.remove('hidden');
+  $('#reportOut').scrollIntoView({behavior:'smooth', block:'start'});
+};
+
+function montaRelatorio(meta){
+  const s = AVAL.suficiencia;
+  const nN = ANALISES.length;
+  const encaminha = AVAL.disparos >= 1;
+
+  const tabela = ANALISES.map(R=>`<tr>
+      <td>${R.rotulo}</td><td class="num">${num(R.horas,2)}</td>
+      <td class="num">${num(R.odi4,1)}</td><td class="num">${num(R.odi3,1)}</td>
+      <td class="num">${R.spo2Nadir}</td><td class="num">${Math.round(R.t90)}</td>
+      <td class="num">${num(R.fcMedia,1)}</td><td class="num">${R.fcMin}</td>
+      <td class="num">${num(R.fcAmplitude,0)}</td>
+      <td class="num">${isFinite(R.picoPeriodo)?Math.round(R.picoPeriodo):'—'}</td></tr>`).join('');
+
+  const flags = AVAL.criterios.map(c=>`
+    <div class="flag ${c.on?'on':'off'}">
+      <span class="ic">${c.on?'!':'✓'}</span>
+      <span><b>${c.nome}</b>
+      <span class="muted">${c.crit} · valor observado: <strong>${c.valor}</strong>${c.indef?' — não avaliável':''}</span></span>
+    </div>`).join('');
+
+  const limitacoes=[];
+  if(!s.noitesOk) limitacoes.push(`Apenas ${nN} noite(s) analisada(s); o protocolo prevê 3 a 5 noites.`);
+  if(!s.horasOk) limitacoes.push(`Ao menos uma noite abaixo de 4 h válidas (mínimo observado: ${num(s.horasMin,2)} h).`);
+  if(!s.fcDiurna) limitacoes.push('Frequência cardíaca de repouso diurna não informada — o descenso noturno não pôde ser estimado.');
+  ANALISES.forEach(R=>{
+    if(R.lacunaMin>30) limitacoes.push(`${R.rotulo}: ${Math.round(R.lacunaMin)} min sem registro, provável perda de contato do sensor.`);
+    if(R.fcIdenticas>60) limitacoes.push(`${R.rotulo}: sinal de frequência de pulso fortemente suavizado pelo aparelho (${num(R.fcIdenticas,0)}% de amostras repetidas) — índices de variabilidade da frequência cardíaca não são calculáveis e não foram reportados.`);
+  });
+
+  const agora=new Date();
+  const conclusao = encaminha
+    ? `O rastreio atingiu <strong>${AVAL.disparos}</strong> de ${AVAL.criterios.length} critérios de disparo pré-definidos.
+       <strong>Sugere-se avaliação por especialista em medicina do sono</strong>, com polissonografia,
+       e avaliação cardiológica para esclarecimento do comportamento da frequência de pulso.`
+    : `Nenhum critério de disparo foi atingido neste conjunto de registros. O resultado
+       <strong>não exclui</strong> distúrbio respiratório do sono — oximetria isolada não detecta
+       hipopneia com despertar sem dessaturação, nem eventos sem repercussão na saturação.
+       Persistindo sintomas, a avaliação especializada permanece indicada independentemente deste rastreio.`;
+
+  const html = `
+  <div class="hdr">
+    <div style="font-size:17px;font-weight:700">Oxytracking — Relatório de Rastreio Oximétrico Noturno</div>
+    <div class="muted">Emitido em ${fmtData(agora)} às ${fmtHora(agora)} · documento de rastreio, não diagnóstico</div>
+  </div>
+
+  <h3>Identificação</h3>
+  <table><tbody>
+    <tr><td style="width:180px"><strong>Identificação</strong></td><td>${esc(meta.id)||'não informada'}</td></tr>
+    <tr><td><strong>Idade</strong></td><td>${esc(meta.idade)||'não informada'}</td></tr>
+    <tr><td><strong>Noites analisadas</strong></td><td>${nN}</td></tr>
+    <tr><td><strong>Período</strong></td><td>${ANALISES[0].rotulo} a ${ANALISES[nN-1].rotulo}</td></tr>
+    <tr><td><strong>Medicação em uso</strong></td><td>${esc(meta.medicacao)}</td></tr>
+    ${meta.clinica?`<tr><td><strong>Contexto clínico</strong></td><td>${esc(meta.clinica)}</td></tr>`:''}
+    ${s.fcDiurna?`<tr><td><strong>FC de repouso diurna</strong></td><td>${num(meta.fcDiurna,0)} bpm</td></tr>`:''}
+  </tbody></table>
+
+  <h3>Índices por noite</h3>
+  <table>
+    <thead><tr><th>Noite</th><th style="text-align:right">Horas</th>
+      <th style="text-align:right">ODI4</th><th style="text-align:right">ODI3</th>
+      <th style="text-align:right">Nadir</th><th style="text-align:right">T90 (s)</th>
+      <th style="text-align:right">FC méd</th><th style="text-align:right">FC mín</th>
+      <th style="text-align:right">Ampl FC</th><th style="text-align:right">Ciclo (s)</th></tr></thead>
+    <tbody>${tabela}</tbody>
+  </table>
+  <p class="tiny">ODI = índice de dessaturação por hora de registro (não por hora de sono).
+     T90 = tempo abaixo de 90%. Ampl FC = amplitude p5–p95. Ciclo = período dominante do espectro de SpO2.</p>
+
+  <h3>Critérios de disparo</h3>
+  ${flags}
+
+  <h3>Conclusão do rastreio</h3>
+  <p>${conclusao}</p>
+
+  <div class="quote">
+    <strong>Texto sugerido para encaminhamento</strong><br><br>
+    Registro de oximetria domiciliar de ${nN} noite(s)${meta.id?`, referente a ${esc(meta.id)}`:''},
+    evidenciou frequência de pulso noturna mediana de ${num(AVAL.fcMediana,1)} bpm
+    e índice de dessaturação de 4% mediano de ${num(AVAL.odiMediano,1)} por hora de registro.
+    ${AVAL.criterios.filter(c=>c.on).map(c=>c.nome.toLowerCase()).join('; ')}${AVAL.disparos?'.':''}
+    Medicação em uso: ${esc(meta.medicacao)}.
+    O achado não é diagnóstico e não substitui avaliação médica, polissonografia
+    ou avaliação autonômica formal. Sugere-se avaliação complementar por especialista em medicina do sono.
+  </div>
+
+  <h3>Limitações desta análise</h3>
+  <ul class="tight">
+    <li>Oximetria isolada não mede fluxo aéreo, esforço torácico-abdominal nem EEG. <strong>Não permite calcular IAH</strong> nem distinguir evento obstrutivo de central.</li>
+    <li>Os índices usam <strong>hora de registro</strong> como denominador, não hora de sono. Se houve vigília, as taxas reais por hora de sono são maiores.</li>
+    <li><strong>Variabilidade da frequência cardíaca não foi calculada</strong> — o oxímetro fornece frequência de pulso suavizada, não intervalos batimento-a-batimento.</li>
+    <li>Medicação bradicardizante e baixa perfusão periférica produzem padrões indistinguíveis dos alterados e devem ser descartados clinicamente.</li>
+    ${limitacoes.map(l=>'<li>'+l+'</li>').join('')}
+  </ul>
+
+  <p class="tiny" style="margin-top:22px;border-top:1px solid var(--border);padding-top:12px">
+    Documento gerado pelo Oxytracking, com processamento local.
+    Não constitui laudo, diagnóstico ou prescrição. A interpretação clínica cabe ao profissional assistente.<br>
+    © 2026 Rachel Ingrid Pereira da Rocha Jannuzzi. Todos os direitos reservados.</p>`;
+
+  return {
+    html: html,
+    dados: {
+      emitido: agora.toISOString(), meta: meta, disparos: AVAL.disparos,
+      criterios: AVAL.criterios.map(c=>({nome:c.nome, valor:c.valor, disparado:c.on})),
+      noites: ANALISES.map(R=>({
+        rotulo:R.rotulo, horas:R.horas, lacunaMin:R.lacunaMin,
+        odi4:R.odi4, odi3:R.odi3, spo2Media:R.spo2Media, spo2Nadir:R.spo2Nadir,
+        t90:R.t90, t88:R.t88, nadirRaso:R.nadirRaso, cicloMediano:R.cicloMediano,
+        fcMedia:R.fcMedia, fcMin:R.fcMin, fcMax:R.fcMax, fcAmplitude:R.fcAmplitude,
+        fcSub70:R.fcSub70, fcSDmedias5:R.fcSDmedias5, fcDegrau:R.fcDegrau,
+        picoPeriodo:R.picoPeriodo, bandaRP:R.bandaRP, bandaVLF:R.bandaVLF,
+        coerMedia:R.coerMedia, coerLim:R.coerLim
+      }))
+    }
+  };
+}
+
+/* ---------------- HISTÓRICO ---------------- */
+function leRel(){ try{ return JSON.parse(localStorage.getItem(LS_REL)||'[]'); }catch(e){ return []; } }
+function gravaRel(a){ try{ localStorage.setItem(LS_REL, JSON.stringify(a)); return true; }catch(e){ return false; } }
+
+$('#btnSalvar').onclick = ()=>{
+  if(!RELATORIO) return;
+  const arr=leRel();
+  arr.unshift({
+    id: 'r'+Date.now(),
+    quando: RELATORIO.dados.emitido,
+    rotulo: (RELATORIO.dados.meta.id||'sem identificação'),
+    periodo: ANALISES[0].rotulo+(ANALISES.length>1?' a '+ANALISES[ANALISES.length-1].rotulo:''),
+    disparos: RELATORIO.dados.disparos,
+    html: RELATORIO.html,
+    dados: RELATORIO.dados
+  });
+  if(gravaRel(arr)){ renderHistorico(); alert('Relatório salvo no histórico deste navegador.'); }
+  else alert('Não foi possível salvar: o armazenamento do navegador está indisponível ou cheio. Use "Exportar JSON" ou "Imprimir / PDF".');
+};
+$('#btnImprimir').onclick = ()=>window.print();
+$('#btnJson').onclick = ()=>baixa(JSON.stringify(RELATORIO.dados,null,2),
+  'oxytracking-'+(RELATORIO.dados.meta.id||'registro').replace(/\s+/g,'_')+'.json','application/json');
+$('#btnExpTudo').onclick = ()=>baixa(JSON.stringify(leRel().map(r=>r.dados),null,2),
+  'oxytracking-historico.json','application/json');
+
+function baixa(txt,nome,tipo){
+  const b=new Blob([txt],{type:tipo}); const u=URL.createObjectURL(b);
+  const a=document.createElement('a'); a.href=u; a.download=nome; a.click();
+  setTimeout(()=>URL.revokeObjectURL(u),1500);
+}
+
+function renderHistorico(){
+  const arr=leRel(), el=$('#histList');
+  if(!arr.length){ el.innerHTML='<p class="muted">Nenhum relatório armazenado ainda.</p>'; return; }
+  el.innerHTML = arr.map(r=>{
+    const d=new Date(r.quando);
+    return `<div class="hist">
+      <div><strong>${esc(r.rotulo)}</strong>
+        <span class="badge ${r.disparos?'alerta':'ok'}">${r.disparos?r.disparos+' critério(s)':'sem disparo'}</span>
+        <div class="tiny">${esc(r.periodo)} · emitido em ${fmtData(d)} ${fmtHora(d)}</div></div>
+      <div style="display:flex;gap:6px">
+        <button class="ghost sm" data-ver="${r.id}">abrir</button>
+        <button class="ghost sm" data-del="${r.id}">excluir</button></div></div>`;
+  }).join('');
+  el.querySelectorAll('[data-ver]').forEach(b=>b.onclick=()=>{
+    const r=leRel().find(x=>x.id===b.dataset.ver); if(!r) return;
+    const w=window.open('','_blank');
+    w.document.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
+      <title>Relatório — ${esc(r.rotulo)}</title><style>
+      body{font:15px/1.65 -apple-system,Helvetica,Arial,sans-serif;max-width:820px;margin:34px auto;padding:0 20px;color:#1a1a1a}
+      table{border-collapse:collapse;width:100%;font-size:13.5px;margin:10px 0}
+      th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e3e3e3}
+      th{font-size:11px;text-transform:uppercase;color:#8a8a8a}
+      td.num{text-align:right}
+      .hdr{border-bottom:2px solid #1a1a1a;padding-bottom:10px;margin-bottom:16px}
+      .muted{color:#5b6b73;font-size:13.5px}.tiny{color:#8a8a8a;font-size:12px}
+      .flag{padding:11px 13px;border-radius:7px;margin-bottom:7px;font-size:13.5px;border:1px solid #e3e3e3}
+      .flag.on{background:#fbe9e9;border-color:#9e2a2b}
+      .flag b{display:block}.ic{font-weight:700;margin-right:8px}
+      .quote{border-left:3px solid #1f5f8b;background:#eaf2f8;padding:14px 16px;margin:14px 0;font-size:13.5px}
+      ul{padding-left:20px}li{margin-bottom:6px}
+      </style></head><body>${r.html}</body></html>`);
+    w.document.close();
+  });
+  el.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{
+    if(!confirm('Excluir este relatório do histórico?')) return;
+    gravaRel(leRel().filter(x=>x.id!==b.dataset.del)); renderHistorico();
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+title: "Oxytracking: rastreio oximétrico noturno com análise de tendência e espectral"
+message: "Se você utilizar este software, cite-o conforme abaixo."
+type: software
+authors:
+  - family-names: "Jannuzzi"
+    given-names: "Rachel Ingrid Pereira da Rocha"
+    orcid: "https://orcid.org/0000-0002-0408-6302"
+abstract: >-
+  Ferramenta de rastreio, executável integralmente no navegador e sem dependências
+  externas, para análise de registros de oximetria de pulso domiciliar. Calcula
+  índices de dessaturação, carga hipoxêmica e índices de escala lenta da frequência
+  de pulso; estima o período dominante de oscilação por densidade espectral de
+  potência (método de Welch) e a coerência espectral entre SpO2 e frequência de
+  pulso, com correção dos graus de liberdade efetivos. Aplica critérios de disparo
+  explícitos e emite relatório de encaminhamento. Não é instrumento diagnóstico
+  nem validado contra polissonografia.
+keywords:
+  - oximetria
+  - apneia do sono
+  - análise espectral
+  - respiração periódica
+  - rastreio
+  - saúde digital
+license-url: "LICENSE"
+notes: "Todos os direitos reservados. Uso, cópia, reprodução e obra derivada dependem de autorização prévia e por escrito da autora. Citação acadêmica com atribuição é permitida."
+version: "1.0.0"
+date-released: "2026-09-20"
