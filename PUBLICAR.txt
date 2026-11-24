@@ -1,0 +1,54 @@
+OXYTRACKING — PASSOS PARA PUBLICAR NO GITHUB
+============================================
+
+1. Crie o repositório
+   Nome:      oxytracking
+   Descrição: Rastreio oximétrico noturno em arquivo único, offline. Índices de
+              dessaturação, análise espectral (Welch) e coerência SpO2-FP, com
+              relatório de encaminhamento. Ferramenta de triagem, não diagnóstica.
+   Topics:    oximetry, sleep-apnea, spectral-analysis, welch-psd,
+              biomedical-signal-processing, offline-first, vanilla-js,
+              health-screening
+
+   NÃO use os topics "medical-device" nem "diagnosis".
+
+2. Envie TODO o conteúdo desta pasta para a RAIZ do repositório
+   (não envie a pasta em si — o index.html precisa ficar na raiz)
+
+   Pela interface web: Add file > Upload files > arraste os arquivos e a
+   pasta docs/ e exemplos/ > Commit changes
+
+3. Ative o GitHub Pages
+   Settings > Pages > Source: Deploy from a branch
+   Branch: main   Pasta: / (root)   > Save
+   Endereço: https://<seu-usuario>.github.io/oxytracking/
+
+4. Não é necessário apagar este arquivo (PUBLICAR.txt), mas pode apagar.
+
+
+ATENÇÃO — LICENÇA E VISIBILIDADE
+---------------------------------
+A licença é de DIREITOS RESERVADOS. Duas consequências práticas:
+
+- Repositório PÚBLICO: os Termos de Serviço do GitHub concedem aos demais
+  usuários o direito de visualizar e bifurcar (fork) o repositório, e isso
+  independe do arquivo LICENSE. Para reserva de direitos consistente, o
+  repositório precisa ser PRIVADO.
+
+- GitHub Pages a partir de repositório PRIVADO exige plano pago (Pro, Team
+  ou Enterprise). No plano gratuito, Pages é necessariamente público.
+
+- Em qualquer caso, GitHub Pages entrega o código-fonte ao navegador de quem
+  visita. A licença torna a reprodução ILÍCITA, não IMPOSSÍVEL.
+
+Alternativa sem publicação: o index.html é autossuficiente e roda com duplo
+clique. Enviar o arquivo diretamente a quem você autorizar funciona sem
+expor o código publicamente.
+
+
+CONFERIDO EM 24/11/2026
+-----------------------
+- Aplicação testada com as três noites de exemplo: sem erros de JavaScript
+- Zero requisições de rede (nenhum CDN, nenhuma biblioteca externa)
+- Avisos de copyright presentes no LICENSE, README, cabeçalho do código,
+  rodapé da página e rodapé de cada relatório emitido
